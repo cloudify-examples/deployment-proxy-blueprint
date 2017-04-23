@@ -1,0 +1,200 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
+  - http://www.getcloudify.org/spec/aws-plugin/1.4.4/plugin.yaml
+
+inputs:
+
+  key_name:
+    default: basic-aws-environment-key
+
+  private_key_path:
+    default: ~/.ssh/basic-aws-environment-key.pem
+
+  vpc_id:
+    type: string
+
+  vpc_cidr_block:
+    type: string
+    default: 172.16.0.0/16
+
+  public_subnet_id:
+    type: string
+
+  public_subnet_cidr:
+    type: string
+    default: 172.16.122.0/24
+
+  private_subnet_id:
+    type: string
+
+  private_subnet_cidr:
+    type: string
+    default: 172.16.123.0/24
+
+  ec2_region_name:
+    default: us-east-1
+
+  ec2_region_endpoint:
+    default: ec2.us-east-1.amazonaws.com
+
+  availability_zone:
+    default: us-east-1e
+
+  ami:
+    default: ami-b9b394ca
+
+  instance_type:
+    default: 'm3.medium'
+
+  ssh_security_group_name:
+    type: string
+    default: 'Cloud Environment SSH Security Group'
+
+  agent_user:
+    default: ubuntu
+
+  agent_config:
+    default:
+      install_method: remote
+      port: 22
+      user: { get_input: agent_user }
+      key: { get_input: private_key_path }
+
+dsl_definitions:
+
+    aws_config: &aws_config
+      aws_access_key_id: { get_secret: aws_access_key_id }
+      aws_secret_access_key: { get_secret: aws_secret_access_key }
+      ec2_region_name: { get_input: ec2_region_name }
+      ec2_region_endpoint: { get_input: ec2_region_endpoint }
+
+node_templates:
+
+  public_host:
+    type: cloudify.aws.nodes.Instance
+    properties:
+      agent_config: { get_input: agent_config }
+      aws_config: *aws_config
+      image_id: { get_input: ami }
+      instance_type: { get_input: instance_type }
+      parameters:
+        placement: { get_property: [ public_subnet, availability_zone ] }
+    relationships:
+      - type: cloudify.aws.relationships.instance_connected_to_keypair
+        target: key
+      - type: cloudify.aws.relationships.instance_connected_to_eni
+        target: public_network_interface
+
+  public_network_interface:
+    type: cloudify.aws.nodes.Interface
+    properties:
+      aws_config: *aws_config
+    relationships:
+      - type: cloudify.aws.relationships.connected_to_subnet
+        target: public_subnet
+      - type: cloudify.aws.relationships.connected_to_security_group
+        target: ssh_security_group
+      - type: cloudify.aws.relationships.connected_to_elastic_ip
+        target: ip
+
+  ip:
+    type: cloudify.aws.nodes.ElasticIP
+    properties:
+      aws_config: *aws_config
+      domain: vpc
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: vpc
+
+  private_host:
+    type: cloudify.aws.nodes.Instance
+    properties:
+      agent_config: { get_input: agent_config }
+      aws_config: *aws_config
+      image_id: { get_input: ami }
+      instance_type: { get_input: instance_type }
+      parameters:
+        placement: { get_property: [ private_subnet, availability_zone ] }
+    relationships:
+      - type: cloudify.aws.relationships.instance_connected_to_keypair
+        target: key
+      - type: cloudify.aws.relationships.instance_connected_to_eni
+        target: private_network_interface
+
+  private_network_interface:
+    type: cloudify.aws.nodes.Interface
+    properties:
+      aws_config: *aws_config
+    relationships:
+      - type: cloudify.aws.relationships.connected_to_subnet
+        target: private_subnet
+      - type: cloudify.aws.relationships.connected_to_security_group
+        target: ssh_security_group
+
+  ssh_security_group:
+    type: cloudify.aws.nodes.SecurityGroup
+    properties:
+      aws_config: *aws_config
+      resource_id: { get_input: ssh_security_group_name }
+      description: SSH Security Group
+      rules:
+        - ip_protocol: tcp 
+          cidr_ip: 0.0.0.0/0
+          from_port: 22
+          to_port: 22
+    relationships:
+      - type: cloudify.aws.relationships.security_group_contained_in_vpc
+        target: vpc
+
+  public_subnet:
+    type: cloudify.aws.nodes.Subnet
+    properties:
+      aws_config: *aws_config
+      use_external_resource: true
+      resource_id: { get_input: public_subnet_id }
+      cidr_block: { get_input: public_subnet_cidr }
+      availability_zone: { get_input: availability_zone }
+    relationships:
+      - type: cloudify.aws.relationships.subnet_contained_in_vpc
+        target: vpc
+
+  private_subnet:
+    type: cloudify.aws.nodes.Subnet
+    properties:
+      aws_config: *aws_config
+      use_external_resource: true
+      resource_id: { get_input: private_subnet_id }
+      cidr_block: { get_input: private_subnet_cidr }
+      availability_zone: { get_input: availability_zone }
+    relationships:
+      - type: cloudify.aws.relationships.subnet_contained_in_vpc
+        target: vpc
+
+  vpc:
+    type: cloudify.aws.nodes.VPC
+    properties:
+      aws_config: *aws_config
+      use_external_resource: true
+      resource_id: { get_input: vpc_id }
+      cidr_block: { get_input: vpc_cidr_block }
+
+  key:
+    type: cloudify.aws.nodes.KeyPair
+    properties:
+      aws_config: *aws_config
+      resource_id: { get_input: key_name }
+      private_key_path: { get_input: private_key_path }
+
+outputs:
+  key_path:
+    description: SSH Key Path
+    value: { get_property: key, private_key_path }
+  private_host_ip:
+    description: Private Host IP
+    value: { get_attribute: private_host, ip }
+  public_host_ip:
+    description: Public Host IP
+    value: { get_attribute: public_host, ip }
+

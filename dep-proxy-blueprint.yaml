@@ -1,0 +1,39 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
+  - https://raw.githubusercontent.com/cloudify-incubator/cloudify-utilities-plugin/v1.0.0/plugin.yaml
+  - aws/deployment-proxy-inputs.yaml
+
+node_templates:
+
+  environment:
+    type: cloudify.nodes.BlueprintDeployment
+    properties:
+      resource_config:
+        application_file_name: { get_input: environment_blueprint_filename }
+        blueprint_archive: { get_input: environment_blueprint }
+        inputs: { get_input: environment_inputs }
+
+  database_host:
+    type: cloudify.nodes.DeploymentProxy.Compute
+    properties:
+      resource_config:
+        deployment_id: { get_attribute: [ environment, deployment, id ] }
+        outputs:
+          private_host_ip: ip
+    relationships:
+      - type: cloudify.relationships.depends_on
+        target: environment
+
+  application_host:
+    type: cloudify.nodes.DeploymentProxy.Compute
+    properties:
+      resource_config:
+        deployment_id: { get_attribute: [ environment, deployment, id ] }
+        outputs:
+          public_host_ip: ip
+    relationships:
+      - type: cloudify.relationships.depends_on
+        target: environment
+
