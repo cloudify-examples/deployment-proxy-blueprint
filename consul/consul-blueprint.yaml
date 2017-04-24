@@ -41,8 +41,6 @@ node_types:
       cloudify.interfaces.lifecycle:
         create:
           implementation: consul/scripts/install.py
-        delete:
-          implementation: consul/scripts/uninstall.py
 
 node_templates:
 

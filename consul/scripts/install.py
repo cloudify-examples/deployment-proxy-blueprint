@@ -1,21 +1,13 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import stat
 import urllib
 import zipfile
 import tempfile
 from cloudify import ctx
 from cloudify.exceptions import NonRecoverableError
-
-
-def update_cleanup(file_path):
-    ctx.logger.info('Update cleanup.')
-    if 'cleanup' not in ctx.instance.runtime_properties.keys():
-        ctx.instance.runtime_properties['cleanup'] = []
-    cleanup = ctx.instance.runtime_properties['cleanup']
-    cleanup.append(file_path)
-    ctx.instance.runtime_properties['cleanup'] = cleanup
 
 
 def download_archive(_url):
@@ -86,4 +78,6 @@ if __name__ == '__main__':
     # Make the binary executable
     binary_file = os.path.join(system_path, sp_name)
     change_permissions(binary_file)
-    update_cleanup(binary_file)
+
+    ctx.logger.info('Exit.')
+    sys.exit(0)
