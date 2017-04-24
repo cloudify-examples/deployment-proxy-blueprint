@@ -3,27 +3,14 @@
 import os
 import sys
 import stat
-import urllib
 import zipfile
 import tempfile
 from cloudify import ctx
 from cloudify.exceptions import NonRecoverableError
 
 
-def download_archive(_url):
-    ctx.logger.info('Download archive.')
-
-    temp_directory = tempfile.mkdtemp()
-    update_cleanup(temp_directory)
-    temp_file = os.path.join(temp_directory, 'archive')
-
-    try:
-        urllib.urlretrieve(archive_url, temp_file)
-    except:
-        raise NonRecoverableError()
-
-    return temp_file
-
+def download_archive(archive_url):
+    raise Exception # Fix this
 
 def unpack_archive(file_path, target_path, compression_type):
     ctx.logger.info('Unpack archive.')
@@ -59,6 +46,8 @@ if __name__ == '__main__':
 
     # Get the name of the software package
     sp_name = sp_config.get('name')
+
+    ctx.logger.info('Installing {0}.'.format(sp_name))
 
     # Get the URL of the software package artifact
     archive_url = bn_config.get('archive_url')
