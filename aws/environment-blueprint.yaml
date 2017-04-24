@@ -113,17 +113,18 @@ node_templates:
 
 outputs:
   public_subnet_id:
-    description: Public Subnet ID
     value: { get_attribute:  [ public_subnet, aws_resource_id ] }
   private_subnet_id:
-    description: Private Subnet ID
     value: { get_attribute: [ private_subnet, aws_resource_id ] }
   ssh_group_id:
-    description: SSH Security Group ID
     value: { get_attribute: [ ssh_security_group, aws_resource_id ] }
   key_path:
-    description: SSH Key Path
     value: { get_property: [ key, private_key_path ] }
   key_name:
-    description: SSH Key Path
     value: { get_property: [ key, resource_id ] }
+  availability_zone:
+    value: { get_input: availability_zone }
+  region_name:
+    value: { get_input: ec2_region_name }
+  region_endpoint:
+    value: { get_input: ec2_region_endpoint }

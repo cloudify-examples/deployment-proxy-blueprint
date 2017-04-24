@@ -3,85 +3,73 @@ imports:
 
 inputs:
 
-  ec2_region_name:
-    default: us-east-1
+  ami:
+    default: ami-b9b394ca
 
-  ec2_region_endpoint:
-    default: ec2.us-east-1.amazonaws.com
+  instance_type:
+    default: 'm3.medium'
 
-  availability_zone:
-    default: us-east-1e
+  agent_user:
+    default: ubuntu
 
-  # ami:
-  #   default: ami-b9b394ca
-
-  # instance_type:
-  #   default: 'm3.medium'
-
-  # agent_user:
-  #   default: ubuntu
-
-  # agent_config:
-  #   default:
-  #     install_method: remote
-  #     port: 22
-  #     user: { get_input: agent_user }
-  #     key: { get_input: private_key_path }
+  agent_config:
+    default:
+      install_method: remote
+      port: 22
+      user: { get_input: agent_user }
+      key: { get_attribute: [ environment, key_path ] }
 
 dsl_definitions:
 
     aws_config: &aws_config
       aws_access_key_id: { get_secret: aws_access_key_id }
       aws_secret_access_key: { get_secret: aws_secret_access_key }
-      ec2_region_name: { get_input: ec2_region_name }
-      ec2_region_endpoint: { get_input: ec2_region_endpoint }
+      ec2_region_name: { get_attribute: [ environment, region_name ]}
+      ec2_region_endpoint: { get_attribute: [ environment, region_endpoint ]}
 
 node_templates:
 
-  # public_host:
-  #   type: cloudify.aws.nodes.Instance
-  #   properties:
-  #     agent_config: { get_input: agent_config }
-  #     aws_config: *aws_config
-  #     image_id: { get_input: ami }
-  #     instance_type: { get_input: instance_type }
-  #     parameters:
-  #       placement: { get_property: [ public_subnet, availability_zone ] }
-  #   relationships:
-  #     - type: cloudify.aws.relationships.instance_connected_to_keypair
-  #       target: key
+  public_host:
+    type: cloudify.aws.nodes.Instance
+    properties:
+      agent_config: { get_input: agent_config }
+      aws_config: *aws_config
+      image_id: { get_input: ami }
+      instance_type: { get_input: instance_type }
+      parameters:
+        placement: { get_attribute: [ environment, availability_zone ] }
+        key_name: { get_attribute: [ environment, key_name ] }
+    relationships:
+      - type: cloudify.aws.relationships.instance_connected_to_eni
+        target: public_network_interface
 
-  # private_host:
-  #   type: cloudify.aws.nodes.Instance
-  #   properties:
-  #     agent_config: { get_input: agent_config }
-  #     aws_config: *aws_config
-  #     image_id: { get_input: ami }
-  #     instance_type: { get_input: instance_type }
-  #     parameters:
-  #       placement: { get_input: availability_zone }
-  #       key_name: { get_attribute: [ environment, key_name ] }
-  #   relationships:
-  #     - type: cloudify.aws.relationships.instance_connected_to_eni
-  #       target: private_network_interface
+  private_host:
+    type: cloudify.aws.nodes.Instance
+    properties:
+      agent_config: { get_input: agent_config }
+      aws_config: *aws_config
+      image_id: { get_input: ami }
+      instance_type: { get_input: instance_type }
+      parameters:
+        placement: { get_attribute: [ environment, availability_zone ] }
+        key_name: { get_attribute: [ environment, key_name ] }
+    relationships:
+      - type: cloudify.aws.relationships.instance_connected_to_eni
+        target: private_network_interface
 
-  # public_network_interface:
-  #   type: cloudify.aws.nodes.Interface
-  #   properties:
-  #     aws_config: *aws_config
-  #     parameters:
-  #    subnet_id: { get_attribute: [ environment, public_subnet_id ] }
-  #    groups:
-  #    - { get_attribute: [ environment, ssh_group_id ] }
-  #   interfaces:
-  #     cloudify.interfaces.lifecycle:
-  #       create:
-  #         implementation: aws.cloudify_aws.ec2.eni.create
-  #         inputs:
-  #           args:
-  #   relationships:
-  #     - type: cloudify.aws.relationships.connected_to_elastic_ip
-  #       target: ip
+  public_network_interface:
+    type: cloudify.aws.nodes.Interface
+    relationships:
+      - type: cloudify.relationships.depends_on
+        target: environment
+      - type: cloudify.aws.relationships.connected_to_elastic_ip
+        target: ip
+    properties:
+      aws_config: *aws_config
+      parameters:
+        subnet_id: { get_attribute: [ environment, public_subnet_id ] }
+        groups:
+          - { get_attribute: [ environment, ssh_group_id ] }
 
   private_network_interface:
     type: cloudify.aws.nodes.Interface
@@ -90,18 +78,13 @@ node_templates:
         target: environment
     properties:
       aws_config: *aws_config
-    interfaces:
-      cloudify.interfaces.lifecycle:
-        create:
-          implementation: aws.cloudify_aws.ec2.eni.create
-          inputs:
-            args:
-              subnet_id: { get_attribute: [ environment, private_subnet_id ] }
-              groups:
-                - { get_attribute: [ environment, ssh_group_id ] }
+      parameters:
+        subnet_id: { get_attribute: [ environment, private_subnet_id ] }
+        groups:
+          - { get_attribute: [ environment, ssh_group_id ] }
 
-  # ip:
-  #   type: cloudify.aws.nodes.ElasticIP
-  #   properties:
-  #     aws_config: *aws_config
-  #     domain: vpc
+  ip:
+    type: cloudify.aws.nodes.ElasticIP
+    properties:
+      aws_config: *aws_config
+      domain: vpc
