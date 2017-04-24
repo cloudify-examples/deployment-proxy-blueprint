@@ -35,10 +35,13 @@ def unpack_archive(file_path, target_path, compression_type):
 
     if 'zip' in compression_type:
         zip_archive = zipfile.ZipFile(file_path, 'r')
-        zip_ref.extractall(target_path)
+        zip_archive.extractall(target_path)
+        zip_archive.close()
         return True
     else:
-        raise NonRecoverableError('Unsupported compression_type: {0}'.format(compression_type))
+        raise NonRecoverableError(
+            'Unsupported compression_type: {0}'
+            .format(compression_type))
 
 
 def change_permissions(file_path):
@@ -76,10 +79,7 @@ if __name__ == '__main__':
     # Unpack the archive to the system path
     unpack_archive(archive_path, system_path, gz)
 
-    # Store the system path
-    ctx.instance.runtime_properties['software_package']['binary_file'] = binary_file
-
     # Make the binary executable
-    binary_file = os.path.join(system_path, database_name)
+    binary_file = os.path.join(system_path, sp_name)
     change_permissions(binary_file)
     update_cleanup(binary_file)
