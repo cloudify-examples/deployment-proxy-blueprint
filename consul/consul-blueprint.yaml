@@ -1,0 +1,60 @@
+inputs:
+
+  database_name:
+    default: consul
+
+  database_binary_archive:
+    default: https://releases.hashicorp.com/consul/0.8.1/consul_0.8.1_linux_amd64.zip
+
+  database_binary_format:
+    default: zip
+
+  system_path:
+    default: /usr/local/bin
+
+data_types:
+
+  cloudify.datatypes.binary:
+    properties:
+      archive_url:
+        type: string
+      archive_compression_format:
+        type: string
+
+  cloudify.datatypes.SoftwarePackage:
+    properties:
+      binary_object:
+        type: cloudify.datatypes.binary
+      name:
+        type: string
+      system_path_directory:
+        type: string
+
+node_types:
+
+  cloudify.nodes.SoftwarePackage:
+    derived_from: cloudify.nodes.SoftwareComponent
+    properties:
+      resource_config:
+        type: cloudify.datatypes.SoftwarePackage
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: consul/scripts/install.py
+        delete:
+          implementation: consul/scripts/uninstall.py
+
+node_templates:
+
+  consul_binary:
+    type: cloudify.nodes.SoftwarePackage
+    properties:
+      resource_config:
+        name: { get_input: database_name }
+        binary_object:
+          archive_url: { get_input: database_binary_archive }
+          archive_compression_format: { get_input: database_binary_format }
+        system_path_directory: { get_input: system_path }
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: private_host
