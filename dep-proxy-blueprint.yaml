@@ -4,10 +4,11 @@ imports:
   - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
   - https://raw.githubusercontent.com/cloudify-incubator/cloudify-utilities-plugin/v1.0.0/plugin.yaml
   - aws/deployment-proxy-inputs.yaml
+  - aws/compute-blueprint.yaml
 
 node_templates:
 
-  environment:
+  environment_dep:
     type: cloudify.nodes.BlueprintDeployment
     properties:
       resource_config:
@@ -15,25 +16,17 @@ node_templates:
         blueprint_archive: { get_input: environment_blueprint }
         inputs: { get_input: environment_inputs }
 
-  database_host:
-    type: cloudify.nodes.DeploymentProxy.Compute
+  environment:
+    type: cloudify.nodes.DeploymentProxy
     properties:
       resource_config:
-        deployment_id: { get_attribute: [ environment, deployment, id ] }
+        deployment_id: { get_attribute: [ environment_dep, deployment, id ] }
         outputs:
-          private_host_ip: ip
+          public_subnet_id: public_subnet_id
+          private_subnet_id: private_subnet_id
+          ssh_group_id: ssh_group_id
+          key_path: key_path
+          key_name: key_name
     relationships:
       - type: cloudify.relationships.depends_on
-        target: environment
-
-  application_host:
-    type: cloudify.nodes.DeploymentProxy.Compute
-    properties:
-      resource_config:
-        deployment_id: { get_attribute: [ environment, deployment, id ] }
-        outputs:
-          public_host_ip: ip
-    relationships:
-      - type: cloudify.relationships.depends_on
-        target: environment
-
+        target: environment_dep
