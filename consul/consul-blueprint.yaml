@@ -46,7 +46,7 @@ node_types:
 
 node_templates:
 
-  consul_binary:
+  consul:
     type: cloudify.nodes.SoftwarePackage
     properties:
       resource_config:

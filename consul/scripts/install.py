@@ -10,6 +10,7 @@ from cloudify.exceptions import NonRecoverableError
 
 
 def update_cleanup(file_path):
+    ctx.logger.info('Update cleanup.')
     if 'cleanup' not in ctx.instance.runtime_properties.keys():
         ctx.instance.runtime_properties['cleanup'] = []
     cleanup = ctx.instance.runtime_properties['cleanup']
@@ -18,6 +19,7 @@ def update_cleanup(file_path):
 
 
 def download_archive(_url):
+    ctx.logger.info('Download archive.')
 
     temp_directory = tempfile.mkdtemp()
     update_cleanup(temp_directory)
@@ -32,6 +34,7 @@ def download_archive(_url):
 
 
 def unpack_archive(file_path, target_path, compression_type):
+    ctx.logger.info('Unpack archive.')
 
     if 'zip' in compression_type:
         zip_archive = zipfile.ZipFile(file_path, 'r')
@@ -45,6 +48,7 @@ def unpack_archive(file_path, target_path, compression_type):
 
 
 def change_permissions(file_path):
+    ctx.logger.info('Change permissions.')
     st = os.stat(file_path)
     os.chmod(file_path, st.st_mode | stat.S_IEXEC)
     return True
