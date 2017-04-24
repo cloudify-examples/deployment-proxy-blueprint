@@ -26,6 +26,7 @@ node_templates:
           private_subnet_id: private_subnet_id
           ssh_group_id: ssh_group_id
           key_path: key_path
+          key_name: key_name
           availability_zone: availability_zone
           region_name: region_name
           region_endpoint: region_endpoint
