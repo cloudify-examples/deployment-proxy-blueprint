@@ -1,0 +1,19 @@
+node_templates:
+
+  flask:
+    type: cloudify.nodes.SoftwareComponent
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: public_host
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: applications/resources/scripts/flask/create.sh
+        create:
+          implementation: applications/resources/scripts/flask/configure.sh
+        start:
+          implementation: applications/resources/scripts/flask/start.sh
+        stop:
+          implementation: applications/resources/scripts/flask/stop.sh
+        delete:
+          implementation: applications/resources/scripts/flask/delete.sh

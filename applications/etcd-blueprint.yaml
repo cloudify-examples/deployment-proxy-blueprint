@@ -1,22 +1,17 @@
-inputs:
-
-  software_package_name:
-    default: etcd
-
-  software_package_version:
-    default: 'v3.1.6'
-
 node_templates:
 
   etcd:
-    type: cloudify.nodes.SoftwarePackage
-    properties:
-      resource_config:
-        name: { get_input: software_package_name }
-        version: { get_input: software_package_version }
-        lifecycle_scripts:
-          create:
-            blueprint_resource: applications/resources/scripts/etcd/install.sh
+    type: cloudify.nodes.SoftwareComponent
     relationships:
       - type: cloudify.relationships.contained_in
         target: private_host
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: applications/resources/scripts/etcd/create.sh
+        start:
+          implementation: applications/resources/scripts/etcd/start.sh
+        stop:
+          implementation: applications/resources/scripts/etcd/stop.sh
+        delete:
+          implementation: applications/resources/scripts/etcd/delete.sh

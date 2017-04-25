@@ -5,8 +5,8 @@ imports:
   - https://raw.githubusercontent.com/cloudify-incubator/cloudify-utilities-plugin/v1.0.0/plugin.yaml
   - aws/deployment-proxy-inputs.yaml
   - aws/compute-blueprint.yaml
-  - applications/imports/types.yaml
   - applications/etcd-blueprint.yaml
+  - applications/flask-blueprint.yaml
 
 node_templates:
 
@@ -26,7 +26,7 @@ node_templates:
         outputs:
           public_subnet_id: public_subnet_id
           private_subnet_id: private_subnet_id
-          ssh_group_id: ssh_group_id
+          group_id: group_id
           key_path: key_path
           key_name: key_name
           availability_zone: availability_zone

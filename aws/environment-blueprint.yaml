@@ -42,10 +42,24 @@ inputs:
   availability_zone:
     default: us-east-1e
 
-  ssh_security_group_name:
+  security_group_name:
     type: string
-    default: 'Cloud Environment SSH Security Group'
+    default: 'Cloud Environment Security Group'
 
+  application_security_group_rules:
+    default:
+      - ip_protocol: tcp 
+        cidr_ip: 0.0.0.0/0
+        from_port: 22 # SSH
+        to_port: 22 # SSH
+      - ip_protocol: tcp 
+        cidr_ip: 0.0.0.0/0
+        from_port: 2379 # ETCD
+        to_port: 2379 # ETCD
+      - ip_protocol: tcp 
+        cidr_ip: 0.0.0.0/0
+        from_port: 5000 # Flask
+        to_port: 5000 # Flask
 
 dsl_definitions:
 
@@ -57,17 +71,13 @@ dsl_definitions:
 
 node_templates:
 
-  ssh_security_group:
+  application_security_group:
     type: cloudify.aws.nodes.SecurityGroup
     properties:
       aws_config: *aws_config
-      resource_id: { get_input: ssh_security_group_name }
-      description: SSH Security Group
-      rules:
-        - ip_protocol: tcp 
-          cidr_ip: 0.0.0.0/0
-          from_port: 22
-          to_port: 22
+      resource_id: { get_input: security_group_name }
+      description: Cloud Application Security Group
+      rules: { get_input: application_security_group_rules }
     relationships:
       - type: cloudify.aws.relationships.security_group_contained_in_vpc
         target: vpc
@@ -116,8 +126,8 @@ outputs:
     value: { get_attribute:  [ public_subnet, aws_resource_id ] }
   private_subnet_id:
     value: { get_attribute: [ private_subnet, aws_resource_id ] }
-  ssh_group_id:
-    value: { get_attribute: [ ssh_security_group, aws_resource_id ] }
+  group_id:
+    value: { get_attribute: [ application_security_group, aws_resource_id ] }
   key_path:
     value: { get_property: [ key, private_key_path ] }
   key_name:
