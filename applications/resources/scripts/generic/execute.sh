@@ -7,7 +7,8 @@ set -e
 FULL_LIFECYCLE_OPERATION_NAME=$(ctx operation name)
 ctx logger info "FULL_LIFECYCLE_OPERATION_NAME ${FULL_LIFECYCLE_OPERATION_NAME}"
 
-LIFECYCLE_OPERATION=’;’ read -ra STRINGS <<< "$FULL_LIFECYCLE_OPERATION_NAME" echo ${STRINGS[${#STRINGS[@]} - 1]}
+IFS='.' read -r -a array <<< "$FULL_LIFECYCLE_OPERATION_NAME"
+LIFECYCLE_OPERATION=${array[3]}
 ctx logger info "LIFECYCLE_OPERATION ${LIFECYCLE_OPERATION}"
 
 SCRIPT_FROM_BLUEPRINT=$(ctx node properties resource_config lifecycle_scripts ${LIFECYCLE_OPERATION} blueprint_resource)
