@@ -5,7 +5,8 @@ imports:
   - https://raw.githubusercontent.com/cloudify-incubator/cloudify-utilities-plugin/v1.0.0/plugin.yaml
   - aws/deployment-proxy-inputs.yaml
   - aws/compute-blueprint.yaml
-  - consul/consul-blueprint.yaml
+  - applications/imports/types.yaml
+  - applications/etcd-blueprint.yaml
 
 node_templates:
 
