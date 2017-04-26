@@ -6,7 +6,6 @@ imports:
   - aws/deployment-proxy-inputs.yaml
   - aws/compute-blueprint.yaml
   - applications/etcd-blueprint.yaml
-  - applications/application-blueprint.yaml
 
 node_templates:
 

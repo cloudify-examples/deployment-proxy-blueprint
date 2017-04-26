@@ -58,8 +58,8 @@ inputs:
         to_port: 2379 # ETCD
       - ip_protocol: tcp 
         cidr_ip: 0.0.0.0/0
-        from_port: 5000 # Flask
-        to_port: 5000 # Flask
+        from_port: 2380 # ETCD
+        to_port: 2380 # ETCD
 
 dsl_definitions:
 

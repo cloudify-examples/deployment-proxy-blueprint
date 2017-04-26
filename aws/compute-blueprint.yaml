@@ -7,7 +7,7 @@ inputs:
     default: ami-b9b394ca
 
   instance_type:
-    default: 'm3.medium'
+    default: 't2.micro'
 
   agent_user:
     default: ubuntu
@@ -29,20 +29,6 @@ dsl_definitions:
 
 node_templates:
 
-  public_host:
-    type: cloudify.aws.nodes.Instance
-    relationships:
-      - type: cloudify.aws.relationships.instance_connected_to_eni
-        target: public_network_interface
-    properties:
-      agent_config: { get_input: agent_config }
-      aws_config: *aws_config
-      image_id: { get_input: ami }
-      instance_type: { get_input: instance_type }
-      parameters:
-        placement: { get_attribute: [ environment, availability_zone ] }
-        key_name: { get_attribute: [ environment, key_name ] }
-
   private_host:
     type: cloudify.aws.nodes.Instance
     relationships:
@@ -57,20 +43,6 @@ node_templates:
         placement: { get_attribute: [ environment, availability_zone ] }
         key_name: { get_attribute: [ environment, key_name ] }
 
-  public_network_interface:
-    type: cloudify.aws.nodes.Interface
-    relationships:
-      - type: cloudify.relationships.depends_on
-        target: environment
-      - type: cloudify.aws.relationships.connected_to_elastic_ip
-        target: ip
-    properties:
-      aws_config: *aws_config
-      parameters:
-        subnet_id: { get_attribute: [ environment, public_subnet_id ] }
-        groups:
-          - { get_attribute: [ environment, group_id ] }
-
   private_network_interface:
     type: cloudify.aws.nodes.Interface
     relationships:
@@ -82,12 +54,3 @@ node_templates:
         subnet_id: { get_attribute: [ environment, private_subnet_id ] }
         groups:
           - { get_attribute: [ environment, group_id ] }
-
-  ip:
-    type: cloudify.aws.nodes.ElasticIP
-    relationships:
-      - type: cloudify.relationships.depends_on
-        target: environment
-    properties:
-      aws_config: *aws_config
-      domain: vpc

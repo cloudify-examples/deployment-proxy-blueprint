@@ -9,6 +9,8 @@ node_templates:
       cloudify.interfaces.lifecycle:
         create:
           implementation: applications/resources/scripts/etcd/create.sh
+        configure:
+          implementation: applications/resources/scripts/etcd/configure.sh
         start:
           implementation: applications/resources/scripts/etcd/start.sh
         stop:

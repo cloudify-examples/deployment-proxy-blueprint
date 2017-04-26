@@ -1,3 +1,3 @@
 /!/bin/bash
 
-ctx instance runtime-properties endpoint http://$(ctx target instance host_ip):5000
+ctx source instance runtime-properties endpoint http://$(ctx target instance host_ip):2379

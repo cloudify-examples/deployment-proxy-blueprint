@@ -4,4 +4,4 @@ set -e
 
 PID=$(ctx instance runtime_properties pid)
 
-kill -9 ${PID}
+sudo kill -9 ${PID}
