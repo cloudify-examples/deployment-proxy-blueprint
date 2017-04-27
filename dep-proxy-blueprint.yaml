@@ -12,10 +12,10 @@ inputs:
     default: aws
 
   environment_blueprint_filename:
-    default: imports/aws-environment.yaml
+    default: aws-environment.yaml
 
   environment_blueprint:
-    default: https://github.com/cloudify-examples/deployment-proxy-blueprint/archive/dev.zip
+    default: https://github.com/cloudify-examples/deployment-proxy-blueprint/archive/devdev.zip
 
   environment_inputs:
     default:
@@ -48,4 +48,4 @@ node_templates:
             availability_zone: availability_zone
             region_name: region_name
             region_endpoint: region_endpoint
-            etcd_discovery_service: DISCOVERY_URL
+            discovery_url: DISCOVERY_URL
