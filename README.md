@@ -8,7 +8,7 @@ The deployment proxy enables one Cloudify deployment to reference another deploy
 ## Requirements
 
 - AWS (EC2, VPC)
-- cloudify-utilities-plugin v1.1.0
+- cloudify-utilities-plugin v1.1.1
 
 
 ## Example
@@ -27,12 +27,12 @@ _The nice thing about the deployment proxy is that a single blueprint contains b
 
 ## Instructions
 
-1. Edit the `environment_inputs` in `example-blueprint.yaml` to match your environment.
+1. Edit the `environment_inputs` in `inputs/aws.yaml.template` to match your environment.
 
 2. Execute the `example-blueprint.yaml`:
 
 ```shell
-$ cfy install example-blueprint.yaml
+$ cfy install example-blueprint.yaml -i inputs.yaml -b test
 ```
 
 2b. Or to see execute the blueprint multiple times, try something like this:
@@ -40,14 +40,14 @@ $ cfy install example-blueprint.yaml
 ```shell
 $ for i in {1..3}
 > do
-> cfy install example-blueprint.yaml -b test$i
+> cfy install example-blueprint.yaml -i inputs.yaml -b test$i
 > done
 ```
 
 3. Now install again, or just uninstall:
 
 ```shell
-$ cfy uninstall example-blueprint --allow-custom-parameters -p ignore_failure=true
+$ cfy uninstall test --allow-custom-parameters -p ignore_failure=true
 ```
 
 3b. If you ran the loop, run this:
@@ -124,5 +124,4 @@ The deployment proxy is in ```example-blueprint.yaml```.
 To manage the entire deployment of both stages, only this blueprint needs to be executed. (Although, stage 1 and 2 can be executed separately. The only necessary step is to verify that the resource_config:deployment:id is accurate in the deployment proxy node properties.)
 
 
-* Acknowledgement: The etcd service discovery model is based on the [public service discovery service](https://coreos.com/etcd/docs/latest/op-guide/clustering.html#etcd-discovery). *
-
+*Acknowledgement: The etcd service discovery model is based on the [public service discovery service](https://coreos.com/etcd/docs/latest/op-guide/clustering.html#etcd-discovery).*
