@@ -48,4 +48,4 @@ node_templates:
             availability_zone: availability_zone
             region_name: region_name
             region_endpoint: region_endpoint
-            etcd_discovery_service: DISCOVERY_URL
+            discovery_url: DISCOVERY_URL

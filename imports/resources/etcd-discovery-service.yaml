@@ -10,5 +10,5 @@ node_templates:
 
 outputs:
 
-  etcd_discovery_service:
+  discovery_url:
     value: { get_attribute:  [ etcd_discovery_service, DISCOVERY_URL ] }
