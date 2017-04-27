@@ -12,10 +12,10 @@ inputs:
     default: aws
 
   environment_blueprint_filename:
-    default: imports/aws-environment.yaml
+    default: aws-environment.yaml
 
   environment_blueprint:
-    default: https://github.com/cloudify-examples/deployment-proxy-blueprint/archive/dev.zip
+    default: https://github.com/cloudify-examples/deployment-proxy-blueprint/archive/devdev.zip
 
   environment_inputs:
     default:
