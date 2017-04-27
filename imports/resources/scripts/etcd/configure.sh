@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DISCOVERY_URL=$(ctx instance runtime-properties DISCOVERY_URL)
+CLUSTER_SIZE=$(ctx node properties cluster_size)
 
 if [[ ! -z ${DISCOVERY_URL} ]]; then
     exit 0;

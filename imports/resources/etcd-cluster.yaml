@@ -1,7 +1,15 @@
+node_types:
+
+  cloudify.nodes.SoftwareComponent.Cluster:
+    derived_from: cloudify.nodes.SoftwareComponent
+    properties:
+      cluster_size:
+        default: 3
+
 node_templates:
 
   etcd_cluster:
-    type: cloudify.nodes.SoftwareComponent
+    type: cloudify.nodes.SoftwareComponent.Cluster
     relationships:
       - type: cloudify.relationships.contained_in
         target: private_host
