@@ -2,14 +2,17 @@ tosca_definitions_version: cloudify_dsl_1_3
 
 imports:
   - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
-  - https://raw.githubusercontent.com/cloudify-incubator/cloudify-utilities-plugin/v1.0.0/plugin.yaml
-  - aws/compute-blueprint.yaml
-  - applications/etcd-blueprint.yaml
+  - https://raw.githubusercontent.com/cloudify-incubator/cloudify-utilities-plugin/v1.1.0/plugin.yaml
+  - compute-blueprint.yaml
+  - applications/etcd-cluster.yaml
 
 inputs:
 
+  environment_name:
+    default: aws
+
   environment_blueprint_filename:
-    default: aws/environment-blueprint.yaml
+    default: environment-blueprint.yaml
 
   environment_blueprint:
     default: https://github.com/cloudify-examples/deployment-proxy-blueprint/archive/dev.zip
@@ -25,28 +28,24 @@ inputs:
 
 node_templates:
 
-  environment_dep:
-    type: cloudify.nodes.BlueprintDeployment
-    properties:
-      resource_config:
-        application_file_name: { get_input: environment_blueprint_filename }
-        blueprint_archive: { get_input: environment_blueprint }
-        inputs: { get_input: environment_inputs }
-
   environment:
     type: cloudify.nodes.DeploymentProxy
     properties:
       resource_config:
-        deployment_id: { get_attribute: [ environment_dep, deployment, id ] }
-        outputs:
-          public_subnet_id: public_subnet_id
-          private_subnet_id: private_subnet_id
-          group_id: group_id
-          key_path: key_path
-          key_name: key_name
-          availability_zone: availability_zone
-          region_name: region_name
-          region_endpoint: region_endpoint
-    relationships:
-      - type: cloudify.relationships.depends_on
-        target: environment_dep
+        blueprint:
+          id: { get_input: environment_name }
+          blueprint_archive: { get_input: environment_blueprint }
+          main_file_name: { get_input: environment_blueprint_filename }
+        deployment:
+          id: { get_input: environment_name }
+          inputs: { get_input: environment_inputs }
+          outputs:
+            public_subnet_id: public_subnet_id
+            private_subnet_id: private_subnet_id
+            group_id: group_id
+            key_path: key_path
+            key_name: key_name
+            availability_zone: availability_zone
+            region_name: region_name
+            region_endpoint: region_endpoint
+            etcd_discovery_service: DISCOVERY_URL
