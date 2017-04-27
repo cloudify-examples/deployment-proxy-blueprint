@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set +e
-
 DISCOVERY_URL=$(ctx instance runtime-properties DISCOVERY_URL)
 
 if [[ ! -z ${DISCOVERY_URL} ]]; then
@@ -11,5 +9,3 @@ else
     DISCOVERY_URL=$(curl https://discovery.etcd.io/new?size=${CLUSTER_SIZE})
     ctx instance runtime-properties DISCOVERY_URL $DISCOVERY_URL
 fi
-
-set -e

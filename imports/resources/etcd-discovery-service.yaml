@@ -5,7 +5,7 @@ node_templates:
     interfaces:
       cloudify.interfaces.lifecycle:
         configure:
-          implementation: applications/resources/scripts/etcd/configure.sh
+          implementation: resources/scripts/etcd/configure.sh
           executor: central_deployment_agent
 
 outputs:

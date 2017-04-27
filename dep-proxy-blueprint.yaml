@@ -3,8 +3,8 @@ tosca_definitions_version: cloudify_dsl_1_3
 imports:
   - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
   - https://raw.githubusercontent.com/cloudify-incubator/cloudify-utilities-plugin/v1.1.0/plugin.yaml
-  - compute-blueprint.yaml
-  - applications/etcd-cluster.yaml
+  - imports/compute/aws.yaml
+  - imports/resources/etcd-cluster.yaml
 
 inputs:
 
@@ -12,7 +12,7 @@ inputs:
     default: aws
 
   environment_blueprint_filename:
-    default: environment-blueprint.yaml
+    default: imports/aws-environment.yaml
 
   environment_blueprint:
     default: https://github.com/cloudify-examples/deployment-proxy-blueprint/archive/dev.zip

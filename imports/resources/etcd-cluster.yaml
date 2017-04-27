@@ -10,16 +10,16 @@ node_templates:
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             preconfigure:
-              implementation: applications/resources/scripts/etcd/preconfigure.sh
+              implementation: imports/resources/scripts/etcd/preconfigure.sh
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
-          implementation: applications/resources/scripts/etcd/create.sh
+          implementation: imports/resources/scripts/etcd/create.sh
         configure:
-          implementation: applications/resources/scripts/etcd/configure.sh
+          implementation: imports/resources/scripts/etcd/configure.sh
         start:
-          implementation: applications/resources/scripts/etcd/start.sh
+          implementation: imports/resources/scripts/etcd/start.sh
         stop:
-          implementation: applications/resources/scripts/etcd/stop.sh
+          implementation: imports/resources/scripts/etcd/stop.sh
         delete:
-          implementation: applications/resources/scripts/etcd/delete.sh
+          implementation: imports/resources/scripts/etcd/delete.sh
