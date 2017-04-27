@@ -10,7 +10,8 @@ node_templates:
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             preconfigure:
-              implementation: imports/resources/scripts/etcd/preconfigure.sh
+              # Using python because difficulties parsing nested dicts in runtime properties
+              implementation: imports/resources/scripts/etcd/preconfigure.py
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
