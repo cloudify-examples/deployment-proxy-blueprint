@@ -4,6 +4,10 @@ This is an example blueprint for the Cloudify deployment proxy.
 
 This feature is provided via the [cloudify-utilities-plugin](https://github.com/cloudify-incubator/cloudify-utilities-plugin/tree/v1.1.0).
 
+## Explanation
+
+The blueprint creates an AWS environment and brings up an ETCD cluster. Running the blueprint multiple times adds nodes to the cluster.
+
 ## Requirements
 
 - AWS (EC2, VPC)
