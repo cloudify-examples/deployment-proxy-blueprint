@@ -1,0 +1,51 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
+  - https://raw.githubusercontent.com/cloudify-incubator/cloudify-utilities-plugin/v1.1.0/plugin.yaml
+  - imports/compute/aws.yaml
+  - imports/resources/etcd-cluster.yaml
+
+inputs:
+
+  environment_name:
+    default: aws
+
+  environment_blueprint_filename:
+    default: aws-environment.yaml
+
+  environment_blueprint:
+    default: https://github.com/cloudify-examples/deployment-proxy-blueprint/archive/devdev.zip
+
+  environment_inputs:
+    default:
+      ec2_region_name: eu-west-1
+      ec2_region_endpoint: ec2.eu-west-1.amazonaws.com
+      availability_zone: eu-west-1a
+      vpc_id: vpc-f63fda91
+      public_subnet_id: subnet-d636d49f
+      private_subnet_id: subnet-d932d090
+
+node_templates:
+
+  environment:
+    type: cloudify.nodes.DeploymentProxy
+    properties:
+      resource_config:
+        blueprint:
+          id: { get_input: environment_name }
+          blueprint_archive: { get_input: environment_blueprint }
+          main_file_name: { get_input: environment_blueprint_filename }
+        deployment:
+          id: { get_input: environment_name }
+          inputs: { get_input: environment_inputs }
+          outputs:
+            public_subnet_id: public_subnet_id
+            private_subnet_id: private_subnet_id
+            group_id: group_id
+            key_path: key_path
+            key_name: key_name
+            availability_zone: availability_zone
+            region_name: region_name
+            region_endpoint: region_endpoint
+            discovery_url: DISCOVERY_URL

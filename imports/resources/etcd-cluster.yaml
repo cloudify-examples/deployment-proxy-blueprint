@@ -1,0 +1,25 @@
+node_templates:
+
+  etcd_cluster:
+    type: cloudify.nodes.SoftwareComponent
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: private_host
+      - type: cloudify.relationships.depends_on
+        target: environment
+        source_interfaces:
+          cloudify.interfaces.relationship_lifecycle:
+            preconfigure:
+              implementation: imports/resources/scripts/etcd/preconfigure.sh
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: imports/resources/scripts/etcd/create.sh
+        configure:
+          implementation: imports/resources/scripts/etcd/configure.sh
+        start:
+          implementation: imports/resources/scripts/etcd/start.sh
+        stop:
+          implementation: imports/resources/scripts/etcd/stop.sh
+        delete:
+          implementation: imports/resources/scripts/etcd/delete.sh

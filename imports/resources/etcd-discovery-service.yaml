@@ -1,0 +1,14 @@
+node_templates:
+
+  etcd_discovery_service:
+    type: cloudify.nodes.Root
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        configure:
+          implementation: imports/resources/scripts/etcd/configure.sh
+          executor: central_deployment_agent
+
+outputs:
+
+  discovery_url:
+    value: { get_attribute:  [ etcd_discovery_service, DISCOVERY_URL ] }
